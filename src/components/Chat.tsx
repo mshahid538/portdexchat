@@ -48,6 +48,17 @@ export default function Chat() {
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, [isMobileMenuOpen]);
 
+  useEffect(() => {
+    const handleOpenAuthModal = () => {
+      setShowAuthModal(true);
+    };
+
+    document.addEventListener('openAuthModal', handleOpenAuthModal);
+    return () => {
+      document.removeEventListener('openAuthModal', handleOpenAuthModal);
+    };
+  }, [setShowAuthModal]);
+
   return (
     <div className={`fixed inset-0 flex h-screen w-screen overflow-hidden transition-colors duration-200 ${
       theme === 'dark' 
@@ -115,7 +126,7 @@ export default function Chat() {
             </div>
           </div>
         </div>
-        <div className="flex-1 overflow-y-auto p-4 space-y-2">
+        <div className="flex-1 overflow-y-auto p-4 space-y-2 min-h-0">
           {messages.length === 0 ? (
             <div className={`text-center mt-8 transition-colors duration-200 ${
               theme === 'dark' ? 'text-gray-400' : 'text-gray-500'
@@ -124,37 +135,41 @@ export default function Chat() {
               <p className="text-sm mt-2">Start a new conversation!</p>
             </div>
           ) : (
-            messages.map((msg) => (
-              <div
-                key={msg.id}
-                className={`p-3 rounded-xl transition-colors duration-200 cursor-pointer group ${
-                  theme === 'dark'
-                    ? 'bg-gray-700/50 hover:bg-gray-700/80'
-                    : 'bg-white/50 hover:bg-white/80'
-                }`}
-              >
-                <div className="flex items-center gap-3">
-                  <div className="w-8 h-8 rounded-full bg-gradient-to-br from-indigo-500 to-purple-500 flex items-center justify-center">
-                    <Users className="w-4 h-4 text-white" />
-                  </div>
-                  <div className="flex-1 min-w-0">
-                    <p className={`text-sm font-medium truncate transition-colors duration-200 ${
-                      theme === 'dark' ? 'text-gray-200' : 'text-gray-800'
-                    }`}>
-                      {msg.content.substring(0, 30)}...
-                    </p>
-                    <p className={`text-xs transition-colors duration-200 ${
-                      theme === 'dark' ? 'text-gray-400' : 'text-gray-500'
-                    }`}>
-                      {msg.timestamp.toLocaleTimeString()}
-                    </p>
+            <div className="space-y-2">
+              {messages.map((msg) => (
+                <div
+                  key={msg.id}
+                  className={`p-3 rounded-xl transition-colors duration-200 cursor-pointer group ${
+                    theme === 'dark'
+                      ? 'bg-gray-700/50 hover:bg-gray-700/80'
+                      : 'bg-white/50 hover:bg-white/80'
+                  }`}
+                >
+                  <div className="flex items-center gap-3">
+                    <div className="w-8 h-8 rounded-full bg-gradient-to-br from-indigo-500 to-purple-500 flex items-center justify-center">
+                      <Users className="w-4 h-4 text-white" />
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <p className={`text-sm font-medium truncate transition-colors duration-200 ${
+                        theme === 'dark' ? 'text-gray-200' : 'text-gray-800'
+                      }`}>
+                        {msg.content.substring(0, 30)}...
+                      </p>
+                      <p className={`text-xs transition-colors duration-200 ${
+                        theme === 'dark' ? 'text-gray-400' : 'text-gray-500'
+                      }`}>
+                        {msg.timestamp.toLocaleTimeString()}
+                      </p>
+                    </div>
                   </div>
                 </div>
-              </div>
-            ))
+              ))}
+            </div>
           )}
         </div>
-        <div className="p-4">
+        <div className="p-4 border-t transition-colors duration-200 ${
+          theme === 'dark' ? 'border-gray-700' : 'border-gray-200'
+        }">
           <ModelSelector selectedModel={selectedModel} onModelChange={changeModel} />
         </div>
       </aside>
@@ -218,7 +233,7 @@ export default function Chat() {
                 ? 'bg-red-900/50 text-red-200 border border-red-800' 
                 : 'bg-red-50 text-red-700 border border-red-200'
             }`}>
-              <p className="text-sm">{error}</p>
+              <p className="text-sm" dangerouslySetInnerHTML={{ __html: error }} />
             </div>
           )}
           

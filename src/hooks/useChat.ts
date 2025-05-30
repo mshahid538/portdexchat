@@ -8,12 +8,6 @@ import { useAuth } from '../contexts/AuthContext';
 const PORTDEX_API_URL = 'https://api.portdex.ai/chat/completions';
 const PORTDEX_API_KEY = 'sk-qxhQVMoOkC7KpyZPfy81uQ';
 
-// Debug environment variables
-console.log('API URL:', PORTDEX_API_URL);
-console.log('API Key:', PORTDEX_API_KEY); // Log the actual key value
-console.log('API Key exists:', !!PORTDEX_API_KEY);
-console.log('All env vars:', import.meta.env); // Log all environment variables
-
 export function useChat(messageRepository: LocalMessageRepository) {
   const { isAuthenticated, guestChatCount, incrementGuestChatCount } = useAuth();
   const [messages, setMessages] = useState<Message[]>([]);
@@ -42,7 +36,7 @@ export function useChat(messageRepository: LocalMessageRepository) {
     try {
       // Check if user is authenticated or has remaining free chats
       if (!isAuthenticated && guestChatCount >= 3) {
-        setError('You have reached the limit of 3 free chats. Please sign in to continue.');
+        setError('You have used all 3 free chats. <a href="#" class="text-indigo-400 hover:text-indigo-300 underline" onclick="event.preventDefault(); document.dispatchEvent(new CustomEvent(\'openAuthModal\'));">Sign in</a> to continue chatting!');
         setShowAuthModal(true);
         setIsLoading(false);
         return;
@@ -62,6 +56,10 @@ export function useChat(messageRepository: LocalMessageRepository) {
         body: JSON.stringify({
           model: selectedModel,
           messages: [
+            {
+              role: 'system',
+              content: `You are a helpful AI assistant powered by DeepSeek's ${selectedModel === 'thinker' ? 'Thinker' : 'Maker'} model. The Thinker model is analytical and logical, while the Maker model is creative and practical.`
+            },
             ...messages.map(msg => ({
               role: msg.role,
               content: msg.content,
